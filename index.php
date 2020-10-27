@@ -24,6 +24,16 @@
 	}
 
 	echo <<< HERE
+        <form action="KMtoMM.php" method="post">
+            <p>Kilometers: <input type="text" name="km"/></p>
+            <p><input type="submit"/></p>
+        </form>
+
+        <form action="MMtoKM.php" method="post">
+            <p>Millimeters: <input type="text" name="mm"/></p>
+            <p><input type="submit"/></p>
+        </form>
+
 		<h1>Guess a number between 1 and 1000</h1><br>
 
 		<table border="2">
