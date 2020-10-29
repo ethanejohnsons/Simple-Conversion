@@ -21,15 +21,26 @@
 
 	function echoHistory($history) {
 		for ($i=0; $i<count($history); $i++) {
+			$mm = $history[$i][0];
+			$km = $history[$i][2];
+
 			if ($history[$i][1] == '<-') {
 				echo <<< HERE
-					<a href="javascript:{}" onclick="document.getElementById('km').submit();">
-				HERE;
+					<a href="#" onclick="
+						document.getElementById('mm').value = '$mm';
+						document.getElementById('km').value = '$km';
+						document.forms['kmform'].submit();
+					">
+HERE;
 				echo strval($history[$i][0])."mm from ".strval($history[$i][2])."km ";
 			} else if ($history[$i][1] == '->') {
 				echo <<< HERE
-					<a href="javascript:{}" onclick="document.getElementById('mm').submit();">
-				HERE;
+					<a href="#" onclick="
+						document.getElementById('mm').value = '$mm';
+						document.getElementById('km').value = '$km';
+						document.forms['mmform'].submit();
+					">
+HERE;
 				echo strval($history[$i][2])."km from ".strval($history[$i][0])."mm ";
 			}
 
@@ -54,28 +65,28 @@ HERE;
 			<tbody>
 				<tr>
 					<td>
-        				<form action="index.php" method="post" id="km">
+        				<form action="index.php" method="post" name="kmform">
 HERE;
 
 	serializeHistory($history);
 	if ($km!=NULL) {
-    	echo "<p>Kilometers: <input type='text' name='km' value=$km></p>";
+    	echo "<p>Kilometers: <input type='text' id='km' name='km' value=$km></p>";
 	} else {
-    	echo "<p>Kilometers: <input type='text' name='km'></p>";
+    	echo "<p>Kilometers: <input type='text' id='km' name='km'></p>";
 	}
 
 	echo <<< HERE
         					<p><input type="submit"/></p>
         				</form>
 
-        				<form action="index.php" method="post" id="mm">
+        				<form action="index.php" method="post" name="mmform">
 HERE;
 
 	serializeHistory($history);
 	if ($mm!=NULL) {
-		echo "<p>Millimeters: <input type='text' name='mm' value=$mm></p>";
+		echo "<p>Millimeters: <input type='text' id='mm' name='mm' value=$mm></p>";
 	} else {
-		echo "<p>Millimeters: <input type='text' name='mm'></p>";
+		echo "<p>Millimeters: <input type='text' id='mm' name='mm'></p>";
 	}
 
 	echo <<< HERE
