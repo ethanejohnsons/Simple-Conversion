@@ -10,21 +10,43 @@
 	} else if ($mm!=NULL) {
 		$km = convertMMtoKM($mm);
 		$history[] = array($mm, '->', $km, $date->getTimestamp());
-	} else {
+	} else if ($toDelete!=NULL) {
+		foreach ($history as $key => $value) {
+			foreach ($toDelete as $k => $v) {
+				if ($value == $v) {
+					unset($toDelete[$k]);
+					unset($history[$key]);
+				}
+			}
+		}
+		
+	} else if ($source!=NULL) {
+		$showSource = !$showSource;
+	} else if ($history == NULL) {
 		$history = array();
 	}
 
-	$showSource = False;
-	if ($source!=NULL) {
-		$showSource = !$showSource;
-	}
-
 	function echoHistory($history) {
-		for ($i=0; $i<count($history); $i++) {
-			$mm = $history[$i][0];
-			$km = $history[$i][2];
+		foreach ($history as $key => $value) {
+			if ($history[$key][1] !== '<-' && $history[$key][1] !== '->') {
+				#continue;
+			}
 
-			if ($history[$i][1] == '<-') {
+			$mm = $history[$key][0];
+			$km = $history[$key][2];
+
+			echo <<< HERE
+				<form action="index.php" method="post" name="delete">
+HERE;
+			$toDelete = array();
+			array_push($toDelete, $history[$key]);
+			serializeHistory($toDelete, True);
+			serializeHistory($history, False);
+			echo <<< HERE
+					<input type="submit" value="Delete">
+HERE;
+
+			if ($history[$key][1] == '<-') {
 				echo <<< HERE
 					<a href="#" onclick="
 						document.getElementById('mm').value = '$mm';
@@ -32,8 +54,8 @@
 						document.forms['kmform'].submit();
 					">
 HERE;
-				echo strval($history[$i][0])."mm from ".strval($history[$i][2])."km ";
-			} else if ($history[$i][1] == '->') {
+				echo strval($history[$key][0])."mm from ".strval($history[$key][2])."km ";
+			} else if ($history[$key][1] == '->') {
 				echo <<< HERE
 					<a href="#" onclick="
 						document.getElementById('mm').value = '$mm';
@@ -41,19 +63,25 @@ HERE;
 						document.forms['mmform'].submit();
 					">
 HERE;
-				echo strval($history[$i][2])."km from ".strval($history[$i][0])."mm ";
+				echo strval($history[$key][2])."km from ".strval($history[$key][0])."mm ";
 			}
 
-			echo strval(date("h:i", $history[$i][3]))."</a><br>";
+			echo strval(date("h:i", $history[$key][3]))."</a><br></form>";
 		}
 	}
 
-	function serializeHistory($history) {
+	function serializeHistory($history, $shouldDelete) {
 		foreach ($history as $key => $val) {
         	foreach ($val as $k => $v) {
-            	echo <<< HERE
-					<input type="hidden" name="history[$key][$k]" value="$v">
+				if ($shouldDelete) {
+            		echo <<< HERE
+						<input type="hidden" name="toDelete[$key][$k]" value="$v">
 HERE;
+				} else {
+            		echo <<< HERE
+						<input type="hidden" name="history[$key][$k]" value="$v">
+HERE;
+				}
             }
         }
 	}
@@ -68,7 +96,7 @@ HERE;
         				<form action="index.php" method="post" name="kmform">
 HERE;
 
-	serializeHistory($history);
+	serializeHistory($history, False);
 	if ($km!=NULL) {
     	echo "<p>Kilometers: <input type='text' id='km' name='km' value=$km></p>";
 	} else {
@@ -82,7 +110,7 @@ HERE;
         				<form action="index.php" method="post" name="mmform">
 HERE;
 
-	serializeHistory($history);
+	serializeHistory($history, False);
 	if ($mm!=NULL) {
 		echo "<p>Millimeters: <input type='text' id='mm' name='mm' value=$mm></p>";
 	} else {
@@ -95,6 +123,10 @@ HERE;
 
 						<form action="index.php" method="post">
 							<p><input type="submit" name = "source" value="Show Source"/></p>
+HERE;
+
+	serializeHistory($history, False);
+	echo <<< HERE
 							<input type="hidden" name="showSource" value=$showSource>
 						</form>
 					</td>
